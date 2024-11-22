@@ -1,5 +1,6 @@
 import avatar from "../assets/Group 4.png";
 import PrimaryButton from "./pri-button";
+import { Link } from "react-router-dom";
 
 const SuccessModal = ({ isOpen, onClose }) => {
   if (!isOpen) return null;
@@ -13,11 +14,13 @@ const SuccessModal = ({ isOpen, onClose }) => {
         <p className="text-text1-0 font-Rubik mb-6">
           Are you ready to manage your own wealth?
         </p>
+        <Link to="/dashboard" relative="dashboard">
         <PrimaryButton
           onClick={onClose}
           id="continue"
           value="Continue"
         ></PrimaryButton>
+        </Link>
       </div>
     </div>
   );
