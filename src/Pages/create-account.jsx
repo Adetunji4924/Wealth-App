@@ -3,14 +3,54 @@ import Banner from "../Components/Banner";
 import PrimaryButton from "../Components/pri-button";
 import SecondaryButton from "../Components/sec-button";
 import { Link } from "react-router-dom";
+import { auth }  from "../config/firebase";
+import { createUserWithEmailAndPassword } from "firebase/auth";
 
 const CreateAccount = () => {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [email, setEmail] = useState("");
+  // const [createPassword, setCreatePassword] = useState("");
 
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
   };
+
+  const SignIn = async (event) => {
+    event.preventDefault(); // Prevent form refresh
+
+    if (!password) {
+      alert("Please ensure the password meets the required conditions.");
+      return;
+    }
+
+    try {
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      alert("Account created successfully!");
+      console.log("User created:", userCredential.user); // Check if the user is created
+    } catch (error) {
+      if (error.code === "auth/email-already-in-use") {
+        alert("This email is already associated with an account.");
+      } else {
+        alert("Failed to create account. Please try again.");
+      }
+    }
+  };
+
+  const [passwordError, setPasswordError] = useState("");
+
+const validatePassword = (value) => {
+  const passwordRules = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+
+  if (!passwordRules.test(value)) {
+    setPasswordError(
+      "Password must be at least 8 characters long, include an uppercase letter, a lowercase letter, a number, and a special character."
+    );
+  } else {
+    setPasswordError(""); // Clear error if valid
+  }
+  setPassword(value);
+};
 
   return (
     <div className="h-screen flex overflow-hidden">
@@ -47,6 +87,7 @@ const CreateAccount = () => {
                   className="border border-tertiary-0 px-2 py-2 rounded focus:border-secondary-0 focus:outline-none"
                   placeholder="sample@gmail.com"
                   type="text"
+                  onChange={(e) => setEmail(e.target.value)}
                 />
               </div>
 
@@ -62,7 +103,7 @@ const CreateAccount = () => {
                   id="password"
                   value={password}
                   placeholder="******************"
-                  onChange={(e) => setPassword(e.target.value)}
+                  onChange={(e) => {setPassword(e.target.value); validatePassword(e.target.value)}}
                   className="border border-tertiary-0 px-2 py-2 rounded focus:border-secondary-0 focus:outline-none"
                 />
                 <div
@@ -98,6 +139,7 @@ const CreateAccount = () => {
                   )}
                 </div>
               </div>
+              {passwordError && <p className="text-red-500 text-sm">{passwordError}</p>}
 
               <div className="flex items-center justify-between mt-4">
                 <p className="text-text1-0 text-[.9rem]">
@@ -109,12 +151,11 @@ const CreateAccount = () => {
               </div>
 
               <div className="pt-8">
-                <Link to="/basic-info" relative="path">
                 <PrimaryButton
                   id="create-account"
                   value="Create an account"
+                  onClick={SignIn}
                 ></PrimaryButton>
-                </Link>
               </div>
             </form>
           </div>

@@ -3,13 +3,46 @@ import Banner from "./Components/Banner";
 import PrimaryButton from "./Components/pri-button";
 import SecondaryButton from "./Components/sec-button";
 import { Link } from "react-router-dom";
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { auth } from "./config/firebase";
 
 const SignIn = () => {
   const [password, setPassword] = useState("");
+  const [email, setEmail] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
+  };
+
+  const logIn = async (event) => {
+    event.preventDefault();
+
+    if (!email || !password) {
+      alert("Email and password are required.");
+      return;
+    }
+
+    try {
+      const userCredential = await signInWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
+      alert("Login successfully!");
+      console.log("User created:", userCredential.user); // Check if the user is created
+    } catch (error) {
+      console.log("Error code:", error.code);
+      if (error.code === "auth/user-not-found") {
+        alert("User does not exist"); // User does not exist
+      } else if (error.code === "auth/wrong-password") {
+        alert(
+          "An account with this email exists, but the password is incorrect."
+        );
+      } else {
+        alert("An error occurred. Please try again.");
+      }
+    }
   };
 
   return (
@@ -21,10 +54,10 @@ const SignIn = () => {
             Don&apos;t have an account?
           </span>
           <Link to="/create-account" relative="path">
-          <SecondaryButton
-            id={"Get Started"}
-            value={"Get Started"}
-          ></SecondaryButton>
+            <SecondaryButton
+              id={"Get Started"}
+              value={"Get Started"}
+            ></SecondaryButton>
           </Link>
         </div>
         <div className="flex justify-center items-center h-full">
@@ -50,6 +83,7 @@ const SignIn = () => {
                   className="border border-tertiary-0 px-2 py-2 rounded focus:border-secondary-0 focus:outline-none"
                   placeholder="sample@gmail.com"
                   type="text"
+                  onChange={(e) => setEmail(e.target.value)}
                 />
               </div>
 
@@ -114,14 +148,18 @@ const SignIn = () => {
                   </label>
                 </div>
                 <Link to="/forgot-password" relative="path">
-                <p className="text-sm text-secondary-0 font-Rubik font-medium cursor-pointer">
-                  Forgot Password?
-                </p>
+                  <p className="text-sm text-secondary-0 font-Rubik font-medium cursor-pointer">
+                    Forgot Password?
+                  </p>
                 </Link>
               </div>
 
               <div className="pt-8">
-                <PrimaryButton id="sign in" value="Sign In"></PrimaryButton>
+                <PrimaryButton
+                  id="sign in"
+                  value="Sign In"
+                  onClick={logIn}
+                ></PrimaryButton>
               </div>
             </form>
           </div>
