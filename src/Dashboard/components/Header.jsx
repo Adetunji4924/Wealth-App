@@ -1,4 +1,4 @@
-import logo from "../../assets/Logo.png";
+import logo from "../../assets/Logo black.svg";
 import avatar from "../../assets/32.png"
 
 const DashboardHeader = () => {

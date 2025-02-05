@@ -5,11 +5,17 @@ import SecondaryButton from "./Components/sec-button";
 import { Link } from "react-router-dom";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "./config/firebase";
+import { ToastContainer, toast, Slide } from "react-toastify";
+import { useNavigate } from "react-router-dom";
+import Loader from "./Components/loader"
 
 const SignIn = () => {
   const [password, setPassword] = useState("");
   const [email, setEmail] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false)
+
+  const navigate = useNavigate();
 
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
@@ -19,9 +25,10 @@ const SignIn = () => {
     event.preventDefault();
 
     if (!email || !password) {
-      alert("Email and password are required.");
+      toast.warn("Email and password are required.");
       return;
     }
+    setIsLoading(true)
 
     try {
       const userCredential = await signInWithEmailAndPassword(
@@ -29,24 +36,43 @@ const SignIn = () => {
         email,
         password
       );
-      alert("Login successfully!");
+      toast.success("Login Successfully!");
       console.log("User created:", userCredential.user); // Check if the user is created
+      setTimeout(() => {
+        setIsLoading(false); // Stop loader
+        navigate("/dashboard"); // Redirect to the dashboard
+      }, 1500);
     } catch (error) {
       console.log("Error code:", error.code);
       if (error.code === "auth/user-not-found") {
-        alert("User does not exist"); // User does not exist
+        toast.error("User does not exist.");
+        setTimeout(() => {
+          setIsLoading(false); // Stop loader
+        }, 1500);
       } else if (error.code === "auth/wrong-password") {
-        alert(
+        toast.error(
           "An account with this email exists, but the password is incorrect."
         );
+        setTimeout(() => {
+          setIsLoading(false); // Stop loader
+        }, 1500);
+      } else if (error.code === "auth/invalid-credential") {
+        toast.warn("Invalid credentials. Please check your input.");
+        setTimeout(() => {
+          setIsLoading(false); // Stop loader
+        }, 1500);
       } else {
-        alert("An error occurred. Please try again.");
+        toast.error("An error occurred. Please try again.");
+        setTimeout(() => {
+          setIsLoading(false); // Stop loader
+        }, 1500);
       }
     }
   };
 
   return (
     <div className="h-screen flex overflow-hidden">
+      {isLoading && <Loader />}
       <Banner />
       <div className="w-[65%] px-8 py-8">
         <div className="flex justify-end gap-4 items-center">
@@ -165,6 +191,19 @@ const SignIn = () => {
           </div>
         </div>
       </div>
+      <ToastContainer
+        position="top-right"
+        autoClose={2000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick={false}
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+        transition={Slide}
+      />
     </div>
   );
 };

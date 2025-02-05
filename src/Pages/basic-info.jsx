@@ -143,8 +143,7 @@ const BasicInformation = () => {
                 />
 
                 <Link
-                  to="/"
-                  relative="path"
+                 onClick={handleCreateAccount}
                   className="flex items-center gap-2"
                 >
                   <p className="text-text1-0 font-Rubik ">Skip</p>

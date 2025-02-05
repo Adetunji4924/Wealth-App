@@ -5,12 +5,18 @@ import SecondaryButton from "../Components/sec-button";
 import { Link } from "react-router-dom";
 import { auth }  from "../config/firebase";
 import { createUserWithEmailAndPassword } from "firebase/auth";
+import { ToastContainer, toast, Slide } from "react-toastify";
+import { useNavigate } from "react-router-dom";
+import Loader from "../Components/loader"
 
 const CreateAccount = () => {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   // const [createPassword, setCreatePassword] = useState("");
+
+  const navigate = useNavigate();
 
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
@@ -20,19 +26,31 @@ const CreateAccount = () => {
     event.preventDefault(); // Prevent form refresh
 
     if (!password) {
-      alert("Please ensure the password meets the required conditions.");
+      toast.warn("Please ensure the password meets the required conditions.");
       return;
     }
 
+    setIsLoading (true);
+
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-      alert("Account created successfully!");
+      toast.success("Account created successfully!");
       console.log("User created:", userCredential.user); // Check if the user is created
+      setTimeout(() => {
+        setIsLoading(false);
+        navigate("/basic-info");
+      }, 1500);
     } catch (error) {
       if (error.code === "auth/email-already-in-use") {
-        alert("This email is already associated with an account.");
+        toast.error("This email is already associated with an account.");
+        setTimeout(() => {
+          setIsLoading(false);
+        }, 1500);
       } else {
-        alert("Failed to create account. Please try again.");
+        toast.error("Failed to create account. Please try again.");
+        setTimeout(() => {
+          setIsLoading(false);
+        }, 1500);
       }
     }
   };
@@ -54,6 +72,7 @@ const validatePassword = (value) => {
 
   return (
     <div className="h-screen flex overflow-hidden">
+      {isLoading && <Loader />}
       <Banner />
       <div className="w-[65%] px-8 py-8">
         <div className="flex justify-end gap-4 items-center">
@@ -161,6 +180,19 @@ const validatePassword = (value) => {
           </div>
         </div>
       </div>
+      <ToastContainer
+        position="top-right"
+        autoClose={2000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick={false}
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+        transition={Slide}
+      />
     </div>
   );
 };
