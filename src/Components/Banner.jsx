@@ -1,4 +1,4 @@
-import LogoWealth from "../assets/logo wealth.png";
+import LogoWealth from "../assets/Logo white.svg";
 
 const Banner = () => {
     return(
