@@ -21,7 +21,7 @@ export default {
       },
 
       backgroundImage: {
-        Banner: "url('./src/assets/Banner.png')",
+        Banner: "url('./public/Banner.png')",
       },
     },
   },
